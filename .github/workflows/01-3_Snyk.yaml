@@ -1,0 +1,39 @@
+name: 01-3 - Integration - SNYK
+
+on:
+  workflow_call:
+
+jobs:
+  SecurityDotNet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # adapte selon ta version .NET
+
+      - name: Restore dependencies
+        run: dotnet restore CESIZen/CESIZen.csproj
+      
+      - name: Build project
+        run: dotnet build CESIZen/CESIZen.csproj --no-restore --configuration Release
+
+      - name: Run Snyk test on .NET project
+        uses: snyk/actions/dotnet@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
+          args: --severity-threshold=medium --file=CESIZen/CESIZen.csproj --org=${{ secrets.SNYK_ORG_ID }}
+
+      - name: Run Snyk monitor on .NET project
+        if: always()
+        uses: snyk/actions/dotnet@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --severity-threshold=medium --file=CESIZen/CESIZen.csproj --org=${{ secrets.SNYK_ORG_ID }}

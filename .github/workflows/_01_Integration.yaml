@@ -10,7 +10,11 @@ jobs:
         uses: ./.github/workflows/01-1_TestBackFront.yaml
 
     Quality_SonarQube:
+        needs: [Test_Back_Front]
         uses: ./.github/workflows/01-2_SonarQube.yaml
         secrets: inherit
     
-    #Security_Snyk:
+    Security_Snyk:
+        needs: [Quality_SonarQube]
+        uses: ./.github/workflows/01-3_Snyk.yaml
+        secrets: inherit
