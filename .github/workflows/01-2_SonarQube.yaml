@@ -1,0 +1,50 @@
+name: 01-2 - Integration - SONARQUBE
+
+on:
+  workflow_call
+
+jobs:
+  QualityBack:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: CESIZen
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x' # Change selon la version .NET utilisée
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore
+
+      - name: Test with coverage
+        run: dotnet test ../CESIZen.Tests --collect:"XPlat Code Coverage"
+
+      - name: ReportGenerator - Convert coverage to lcov
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.1.26
+        with:
+          reports: '**/coverage.cobertura.xml'
+          targetdir: 'coverage-report'
+          reporttypes: 'lcov'
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: back-coverage-report
+          path: coverage-report
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3.1.0
+        with:
+          projectBaseDir: ./CESIZen
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: -Dsonar.cs.opencover.reportsPaths=../coverage-report/lcov.info
