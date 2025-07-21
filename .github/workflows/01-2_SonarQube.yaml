@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: CESIZen  # dossier contenant ton projet backend
+        working-directory: CESIZen
 
     steps:
       - name: Checkout repository
@@ -25,15 +25,19 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests with coverage
-        run: dotnet test ../CESIZen.Tests --collect:"XPlat Code Coverage" --results-directory ./TestResults --no-build --configuration Release
+      - name: Run tests with coverage (cobertura)
+        run: dotnet test ../CESIZen.Tests --collect:"XPlat Code Coverage" --results-directory ./TestResults --configuration Release
 
-      - name: Find coverage file
+      - name: Find cobertura coverage file
         id: find_coverage
         run: |
-          echo "Searching for coverage file..."
-          COVERAGE_FILE=$(find ../CESIZen.Tests/TestResults -name 'coverage.cobertura.xml' -or -name '*.coverage' -or -name '*.coverage.json' | head -n 1)
-          echo "coverage_file=$COVERAGE_FILE"
+          echo "Looking for coverage.cobertura.xml..."
+          COVERAGE_FILE=$(find ../CESIZen.Tests/TestResults -name 'coverage.cobertura.xml' | head -n 1)
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "❌ coverage.cobertura.xml not found!"
+            exit 1
+          fi
+          echo "✅ Found: $COVERAGE_FILE"
           echo "coverage_file=$COVERAGE_FILE" >> $GITHUB_OUTPUT
 
       - name: Install ReportGenerator tool
