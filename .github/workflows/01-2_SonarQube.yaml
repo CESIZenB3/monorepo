@@ -26,18 +26,61 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run tests with coverage (cobertura)
-        run: dotnet test ../CESIZen.Tests --collect:"XPlat Code Coverage" --results-directory ./TestResults --configuration Release
+        run: |
+          # Create TestResults directory if it doesn't exist
+          mkdir -p ./TestResults
+          
+          # Run tests with coverage - using correct relative path
+          dotnet test ../CESIZen.Tests \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults \
+            --configuration Release \
+            --logger "trx;LogFileName=test-results.trx" \
+            --verbosity normal
+
+      - name: Debug - List test results
+        run: |
+          echo "Listing contents of TestResults directory:"
+          find ./TestResults -type f -name "*.xml" | head -20
+          echo "Looking for any coverage files:"
+          find ./TestResults -name "*coverage*" -type f | head -20
 
       - name: Find cobertura coverage file
         id: find_coverage
         run: |
           echo "Looking for coverage.cobertura.xml..."
-          COVERAGE_FILE=$(find ../CESIZen.Tests/TestResults -name 'coverage.cobertura.xml' | head -n 1)
+          
+          # Try multiple possible locations
+          COVERAGE_FILE=""
+          
+          # First try: in TestResults directory
+          COVERAGE_FILE=$(find ./TestResults -name 'coverage.cobertura.xml' 2>/dev/null | head -n 1)
+          
+          # Second try: look for any cobertura.xml file
           if [ -z "$COVERAGE_FILE" ]; then
-            echo "❌ coverage.cobertura.xml not found!"
+            COVERAGE_FILE=$(find ./TestResults -name '*cobertura.xml' 2>/dev/null | head -n 1)
+          fi
+          
+          # Third try: look in test project directory
+          if [ -z "$COVERAGE_FILE" ]; then
+            COVERAGE_FILE=$(find ../CESIZen.Tests -name 'coverage.cobertura.xml' 2>/dev/null | head -n 1)
+          fi
+          
+          # Fourth try: look for any coverage file
+          if [ -z "$COVERAGE_FILE" ]; then
+            COVERAGE_FILE=$(find . -name '*coverage*.xml' 2>/dev/null | head -n 1)
+          fi
+          
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "❌ No coverage file found!"
+            echo "Available files in TestResults:"
+            find ./TestResults -type f 2>/dev/null || echo "TestResults directory not found"
             exit 1
           fi
+          
           echo "✅ Found: $COVERAGE_FILE"
+          # Convert to absolute path
+          COVERAGE_FILE=$(realpath "$COVERAGE_FILE")
           echo "coverage_file=$COVERAGE_FILE" >> $GITHUB_OUTPUT
 
       - name: Install ReportGenerator tool
@@ -55,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: back-coverage-report
-          path: coverage-report
+          path: CESIZen/coverage-report
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v3.1.0
