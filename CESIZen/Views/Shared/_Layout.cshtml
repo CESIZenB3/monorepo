@@ -15,10 +15,10 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark custom-navbar border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/Logo.png" alt="Logo" height="60" style="background: #00994C;" />
+                    <img src="~/images/Logo.png" alt="Image du logos" height="60"/>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -27,25 +27,25 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Accueil</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Accueil</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Information" asp-action="Index">Article</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Information" asp-action="Index">Informations</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Activite" asp-action="Activity">Activités</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ReponseQuestionnaires" asp-action="Formulaire">Questionnaire de stress</a>
                         </li>
 
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-white" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     Administration
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                                     <li><a class="dropdown-item" asp-controller="UserAdmin" asp-action="UsersList">Gestion des utilisateurs</a></li>
-                                    <li><a class="dropdown-item" asp-controller="InformationAdmin" asp-action="Index" asp-route-prefix="Admin">Gestion des articles</a></li>
-                                    <li><a class="dropdown-item" asp-controller="ActiviteAdmin" asp-action="Index" asp-area="">Gestion des activités</a></li>
+                                    <li><a class="dropdown-item" asp-controller="InformationAdmin" asp-action="Index" asp-route-prefix="Admin">Gestion des informations</a></li>
+                                    <li><a class="dropdown-item" asp-controller="QuestionnaireStressesAdmin" asp-action="Index">Gestion du diagnostic de stress</a></li>
                                 </ul>
                             </li>
                         }
@@ -54,21 +54,21 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-white" href="@Url.Action("Manage", "Account")">Bonjour, @User.Identity.Name!</a>
+                                <a class="nav-link text-dark" href="@Url.Action("Manage", "Account")">Bonjour, @User.Identity.Name!</a>
                             </li>
                             <li class="nav-item">
                                 <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="form-inline">
-                                    <button type="submit" class="btn btn-link nav-link text-white">Déconnexion</button>
+                                    <button type="submit" class="btn btn-link nav-link text-dark">Déconnexion</button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-controller="Account" asp-action="Register">S'inscrire</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">S'inscrire</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-white" asp-area="" asp-controller="Account" asp-action="Login">Se connecter</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Se connecter</a>
                             </li>
                         }
                     </ul>

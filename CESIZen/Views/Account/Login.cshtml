@@ -4,145 +4,41 @@
     ViewData["Title"] = "Connexion";
 }
 
-<style>
-    body {
-        background-color: #fef9e7;
-        margin: 0;
-        font-family: Arial, sans-serif;
-    }
-
-    .container-center {
-        max-width: 400px;
-        margin: 40px auto 60px;
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-
-    h2 {
-        margin-bottom: 20px;
-    }
-
-    form {
-        text-align: center;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-        text-align: left;
-    }
-
-        .form-group:last-of-type {
-            margin-bottom: 30px;
-        }
-
-    label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 600;
-    }
-
-    input.form-control {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .btn-custom {
-        background-color: #00BF63;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-        display: inline-block;
-        min-width: 120px;
-        text-align: center;
-    }
-
-        .btn-custom:hover,
-        .btn-custom:focus,
-        .btn-custom:active {
-            background-color: #00994a;
-            color: white;
-        }
-
-    .btn-secondary {
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        text-decoration: none;
-        display: inline-block;
-        min-width: 120px;
-        text-align: center;
-        transition: background-color 0.3s ease;
-    }
-
-        .btn-secondary:hover,
-        .btn-secondary:focus,
-        .btn-secondary:active {
-            background-color: #5a6268;
-            color: white;
-            text-decoration: none;
-        }
-
-    .checkbox label {
-        font-weight: normal;
-        display: flex;
-        align-items: center;
-    }
-
-    .checkbox input[type="checkbox"] {
-        margin-right: 10px;
-    }
-
-    .text-danger {
-        text-align: left;
-        font-size: 0.875em;
-    }
-</style>
-
-<div class="container-center">
-    <h2>@ViewData["Title"]</h2>
-    <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
-        <h4>Utilisez votre compte pour vous connecter.</h4>
-        <hr />
-        <div asp-validation-summary="All" class="text-danger"></div>
-
-        <div class="form-group">
-            <label asp-for="Email"></label>
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Password"></label>
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-
-        <div class="form-group checkbox">
-            <label asp-for="RememberMe">
-                <input asp-for="RememberMe" />
-                @Html.DisplayNameFor(m => m.RememberMe)
-            </label>
-        </div>
-
-        <div class="form-group">
-            <button type="submit" class="btn btn-custom mt-4">Se connecter</button>
-        </div>
-
-        <div class="form-group">
-            <p>
-                <a class="btn btn-secondary mt-4 d-block mx-auto w-auto text-center" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">S'inscrire</a>
-            </p>
-        </div>
-    </form>
+<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+            <h4>Utilisez votre compte pour vous connecter.</h4>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label asp-for="RememberMe">
+                        <input asp-for="RememberMe" />
+                        @Html.DisplayNameFor(m => m.RememberMe)
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary button mt-4">Se connecter</button>
+            </div>
+            <div class="form-group">
+                <p>
+                    <a class="btn btn-secondary mt-4 d-block mx-auto w-auto text-center" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">S'inscrire</a>
+                </p>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {

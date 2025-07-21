@@ -15,26 +15,28 @@ namespace CESIZen.Controllers
             _context = context;
         }
 
-        // GET: /Articles
+        // GET: /Information
         public async Task<IActionResult> Index()
         {
-            var articles = await _context.Articles
+            var informations = await _context.Informations
+                .Where(i => i.EstPublie)
+                .OrderBy(i => i.OrdreAffichage)
                 .ToListAsync();
 
-            return View("~/Views/Information/Index.cshtml", articles);
+            return View("~/Views/Information/Index.cshtml", informations);
         }
 
-        // GET: /Articles/Details/5
+        // GET: /Information/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var articles = await _context.Articles
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var information = await _context.Informations
+                .FirstOrDefaultAsync(i => i.Id == id && i.EstPublie);
 
-            if (articles == null) return NotFound();
+            if (information == null) return NotFound();
 
-            return View("~/Views/Information/Details.cshtml", articles);
+            return View("~/Views/Information/Details.cshtml", information);
         }
     }
 }

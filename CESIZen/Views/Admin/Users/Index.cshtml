@@ -5,17 +5,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    /* Style spécifique à cette page pour le fond */
-    body {
-        background-color: #fef9e7;
-    }
-</style>
-
 <h1>Gestion des Utilisateurs</h1>
 
 <p>
-    <a asp-controller="UserAdmin" asp-route-area="" asp-action="Create" style="background-color:#00BF63; color:white; border:none;" class="btn">Créer un nouvel utilisateur</a>
+    <a asp-controller="UserAdmin" asp-route-area="" asp-action="Create" class="btn btn-primary">Créer un nouvel utilisateur</a>
 </p>
 
 @if (TempData["SuccessMessage"] != null)

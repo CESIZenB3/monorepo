@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CESIZen.Migrations
 {
     [DbContext(typeof(CesiZenDbContext))]
-    [Migration("20250708064125_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250415080623_AjoutQuestionnaireStress")]
+    partial class AjoutQuestionnaireStress
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,24 @@ namespace CESIZen.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CESIZen.Models.Droit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("TypeDroit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Droits");
+                });
 
             modelBuilder.Entity("CESIZen.Models.Information", b =>
                 {
@@ -92,10 +110,16 @@ namespace CESIZen.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("EstSurvenu")
+                        .HasColumnType("bit");
+
                     b.Property<int>("QuestionnaireStressId")
                         .HasColumnType("int");
 
                     b.Property<int>("ReponseQuestionnaireId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ValeurPoints")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -118,8 +142,7 @@ namespace CESIZen.Migrations
                     b.Property<DateTime>("DateReponse")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UtilisateurId")
-                        .IsRequired()
+                    b.Property<int>("UtilisateurId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -127,6 +150,24 @@ namespace CESIZen.Migrations
                     b.HasIndex("UtilisateurId");
 
                     b.ToTable("ReponsesQuestionnaire");
+                });
+
+            modelBuilder.Entity("CESIZen.Models.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("NomRole")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("CESIZen.Models.Utilisateur", b =>
@@ -150,6 +191,9 @@ namespace CESIZen.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("IdRole")
+                        .HasColumnType("int");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -201,6 +245,8 @@ namespace CESIZen.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdRole");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -210,6 +256,21 @@ namespace CESIZen.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("DroitRole", b =>
+                {
+                    b.Property<int>("DroitsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DroitsId", "RolesId");
+
+                    b.HasIndex("RolesId");
+
+                    b.ToTable("Attribuer", (string)null);
                 });
 
             modelBuilder.Entity("InformationUtilisateur", b =>
@@ -397,6 +458,30 @@ namespace CESIZen.Migrations
                     b.Navigation("Utilisateur");
                 });
 
+            modelBuilder.Entity("CESIZen.Models.Utilisateur", b =>
+                {
+                    b.HasOne("CESIZen.Models.Role", "Role")
+                        .WithMany("Utilisateurs")
+                        .HasForeignKey("IdRole");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("DroitRole", b =>
+                {
+                    b.HasOne("CESIZen.Models.Droit", null)
+                        .WithMany()
+                        .HasForeignKey("DroitsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CESIZen.Models.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InformationUtilisateur", b =>
                 {
                     b.HasOne("CESIZen.Models.Information", null)
@@ -468,6 +553,11 @@ namespace CESIZen.Migrations
                     b.Navigation("EvenementsStress");
 
                     b.Navigation("ReponsesEvenement");
+                });
+
+            modelBuilder.Entity("CESIZen.Models.Role", b =>
+                {
+                    b.Navigation("Utilisateurs");
                 });
 
             modelBuilder.Entity("CESIZen.Models.Utilisateur", b =>
