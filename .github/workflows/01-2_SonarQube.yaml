@@ -1,41 +1,46 @@
 name: 01-2 - Integration - SONARQUBE
 
 on:
-  workflow_call
+  workflow_call:
 
 jobs:
   QualityBack:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: CESIZen
+        working-directory: CESIZen  # dossier de ton projet backend ASP.NET
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup .NET
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x' # Change selon la version .NET utilisée
+          dotnet-version: '8.0.x'  # adapte selon la version .NET utilisée
 
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build solution
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore --configuration Release
 
-      - name: Test with coverage
-        run: dotnet test ../CESIZen.Tests --collect:"XPlat Code Coverage"
+      - name: Run tests with coverage
+        run: dotnet test ../CESIZen.Tests --collect:"XPlat Code Coverage" --results-directory ./TestResults --no-build --configuration Release
 
-      - name: ReportGenerator - Convert coverage to lcov
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.1.26
-        with:
-          reports: '**/coverage.cobertura.xml'
-          targetdir: 'coverage-report'
-          reporttypes: 'lcov'
+      - name: Find coverage file
+        id: find_coverage
+        run: |
+          COVERAGE_FILE=$(find ./TestResults -name '*.coverage' -or -name '*.coverage.json' | head -n 1)
+          echo "coverage_file=$COVERAGE_FILE"
+          echo "coverage_file=$COVERAGE_FILE" >> $GITHUB_OUTPUT
 
-      - name: Upload coverage artifact
+      - name: Generate coverage reports (lcov and cobertura)
+        run: |
+          echo "Using coverage file: ${{ steps.find_coverage.outputs.coverage_file }}"
+          ./reportgeneratortool/reportgenerator -reports:${{ steps.find_coverage.outputs.coverage_file }} -targetdir:coverage-report -reporttypes:lcov,cobertura
+
+      - name: Upload coverage report artifact
         uses: actions/upload-artifact@v4
         with:
           name: back-coverage-report
@@ -47,4 +52,7 @@ jobs:
           projectBaseDir: ./CESIZen
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: -Dsonar.cs.opencover.reportsPaths=../coverage-report/lcov.info
+          SONAR_SCANNER_OPTS: -Dsonar.cs.opencover.reportsPaths=coverage-report/cobertura.xml
+
+      - name: Install ReportGenerator tool
+        run: dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./reportgeneratortool --version 5.1.26
