@@ -1,143 +1,65 @@
-name: 01-2 - Integration - SONARQUBE
+name: 01-2 - Integration SonarQube
 
 on:
-  workflow_call:
+  workflow_call
 
 jobs:
-  QualityBack:
+  QualityDotNet:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: CESIZen
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
+      - name: Setup Java (required for SonarCloud)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download Coverage Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dotnet-coverage-report
+          path: ./coverage
+        continue-on-error: true  
+
+      - name: Install SonarCloud scanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
 
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build solution
-        run: dotnet build --no-restore --configuration Release
-
-      - name: Create coverlet.runsettings
-        run: |
-          cat > coverlet.runsettings << EOF
-          <?xml version="1.0" encoding="utf-8" ?>
-          <RunSettings>
-            <DataCollectionRunSettings>
-              <DataCollectors>
-                <DataCollector friendlyName="XPlat code coverage">
-                  <Configuration>
-                    <Format>cobertura</Format>
-                    <Exclude>[*]System.*</Exclude>
-                  </Configuration>
-                </DataCollector>
-              </DataCollectors>
-            </DataCollectionRunSettings>
-          </RunSettings>
-          EOF
-
-      - name: Install coverlet.collector (if missing)
-        run: |
-          echo "Installing coverlet.collector to ensure coverage collection works..."
-          dotnet add ../CESIZen.Tests package coverlet.collector --version 6.0.0
-
-      - name: Run tests with coverage (cobertura)
-        run: |
-          # Create TestResults directory if it doesn't exist
-          mkdir -p ./TestResults
-          
-          # Run tests with coverage using runsettings
-          dotnet test ../CESIZen.Tests \
-            --collect:"XPlat Code Coverage" \
-            --results-directory ./TestResults \
-            --configuration Release \
-            --settings coverlet.runsettings \
-            --logger "trx;LogFileName=test-results.trx" \
-            --verbosity normal
-
-      - name: Debug - List test results
-        run: |
-          echo "Listing contents of TestResults directory:"
-          find ./TestResults -type f | head -20
-          echo ""
-          echo "Looking for any coverage files recursively:"
-          find ./TestResults -name "*coverage*" -type f 2>/dev/null | head -20
-          echo ""
-          echo "Looking for any XML files:"
-          find ./TestResults -name "*.xml" -type f 2>/dev/null | head -20
-          echo ""
-          echo "Full directory structure:"
-          ls -la ./TestResults/ || echo "TestResults directory empty or doesn't exist"
-          echo ""
-          # Look in subdirectories too
-          find ./TestResults -type d -exec ls -la {} \; 2>/dev/null | head -30
-
-      - name: Find cobertura coverage file
-        id: find_coverage
-        run: |
-          echo "Looking for coverage.cobertura.xml..."
-          
-          # Try multiple possible locations
-          COVERAGE_FILE=""
-          
-          # First try: in TestResults directory
-          COVERAGE_FILE=$(find ./TestResults -name 'coverage.cobertura.xml' 2>/dev/null | head -n 1)
-          
-          # Second try: look for any cobertura.xml file
-          if [ -z "$COVERAGE_FILE" ]; then
-            COVERAGE_FILE=$(find ./TestResults -name '*cobertura.xml' 2>/dev/null | head -n 1)
-          fi
-          
-          # Third try: look in test project directory
-          if [ -z "$COVERAGE_FILE" ]; then
-            COVERAGE_FILE=$(find ../CESIZen.Tests -name 'coverage.cobertura.xml' 2>/dev/null | head -n 1)
-          fi
-          
-          # Fourth try: look for any coverage file
-          if [ -z "$COVERAGE_FILE" ]; then
-            COVERAGE_FILE=$(find . -name '*coverage*.xml' 2>/dev/null | head -n 1)
-          fi
-          
-          if [ -z "$COVERAGE_FILE" ]; then
-            echo "❌ No coverage file found!"
-            echo "Available files in TestResults:"
-            find ./TestResults -type f 2>/dev/null || echo "TestResults directory not found"
-            exit 1
-          fi
-          
-          echo "✅ Found: $COVERAGE_FILE"
-          # Convert to absolute path
-          COVERAGE_FILE=$(realpath "$COVERAGE_FILE")
-          echo "coverage_file=$COVERAGE_FILE" >> $GITHUB_OUTPUT
-
-      - name: Install ReportGenerator tool
-        run: dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./reportgeneratortool --version 5.1.26
-
-      - name: Generate coverage reports
-        run: |
-          echo "Using coverage file: ${{ steps.find_coverage.outputs.coverage_file }}"
-          ./reportgeneratortool/reportgenerator \
-            -reports:"${{ steps.find_coverage.outputs.coverage_file }}" \
-            -targetdir:coverage-report \
-            -reporttypes:lcov;cobertura
-
-      - name: Upload coverage report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: back-coverage-report
-          path: CESIZen/coverage-report
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v3.1.0
-        with:
-          projectBaseDir: ./CESIZen
+      - name: Build and analyze
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: -Dsonar.cs.opencover.reportsPaths=coverage-report/cobertura.xml
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+        run: |
+         
+          # Configuration avec les valeurs de SonarCloud
+          ORGANIZATION="${SONAR_ORGANIZATION:-cesizenb3}"
+          PROJECT_KEY="${SONAR_PROJECT_KEY:-cesizenb3_monorepo}"
+          
+          # Configuration pour CESIZen
+          dotnet sonarscanner begin \
+            /k:"$PROJECT_KEY" \
+            /o:"$ORGANIZATION" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.opencover.xml" \
+            /d:sonar.exclusions="**/bin/**,**/obj/**,**/*.js,**/*.css,**/wwwroot/lib/**" \
+            /d:sonar.coverage.exclusions="**/Program.cs,**/Startup.cs,**/Migrations/**,**/Tests/**" \
+            /d:sonar.scanner.skipJreProvisioning=false
+          
+          dotnet build --configuration Release --no-restore
+          
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
