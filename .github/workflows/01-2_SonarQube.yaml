@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: CESIZen  # dossier de ton projet backend ASP.NET
+        working-directory: CESIZen  # dossier contenant ton projet backend
 
     steps:
       - name: Checkout repository
@@ -17,7 +17,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'  # adapte selon la version .NET utilisée
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -31,14 +31,21 @@ jobs:
       - name: Find coverage file
         id: find_coverage
         run: |
-          COVERAGE_FILE=$(find ./TestResults -name '*.coverage' -or -name '*.coverage.json' | head -n 1)
+          echo "Searching for coverage file..."
+          COVERAGE_FILE=$(find ../CESIZen.Tests/TestResults -name 'coverage.cobertura.xml' -or -name '*.coverage' -or -name '*.coverage.json' | head -n 1)
           echo "coverage_file=$COVERAGE_FILE"
           echo "coverage_file=$COVERAGE_FILE" >> $GITHUB_OUTPUT
 
-      - name: Generate coverage reports (lcov and cobertura)
+      - name: Install ReportGenerator tool
+        run: dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./reportgeneratortool --version 5.1.26
+
+      - name: Generate coverage reports
         run: |
           echo "Using coverage file: ${{ steps.find_coverage.outputs.coverage_file }}"
-          ./reportgeneratortool/reportgenerator -reports:${{ steps.find_coverage.outputs.coverage_file }} -targetdir:coverage-report -reporttypes:lcov,cobertura
+          ./reportgeneratortool/reportgenerator \
+            -reports:"${{ steps.find_coverage.outputs.coverage_file }}" \
+            -targetdir:coverage-report \
+            -reporttypes:lcov;cobertura
 
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v4
@@ -53,6 +60,3 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_SCANNER_OPTS: -Dsonar.cs.opencover.reportsPaths=coverage-report/cobertura.xml
-
-      - name: Install ReportGenerator tool
-        run: dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./reportgeneratortool --version 5.1.26
