@@ -4,116 +4,46 @@
     ViewData["Title"] = "Inscription";
 }
 
-<style>
-    body {
-        background-color: #fef9e7;
-        margin: 0;
-        font-family: Arial, sans-serif;
-    }
+<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+            <h4>Créer un nouveau compte.</h4>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
 
-    .container-center {
-        max-width: 400px;
-        margin: 40px auto 60px; /* marge auto horizontale + marge haut et bas */
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
+            <div class="form-group">
+                <label asp-for="Nom"></label>
+                <input asp-for="Nom" class="form-control" />
+                <span asp-validation-for="Nom" class="text-danger"></span>
+            </div>
 
-    h2 {
-        margin-bottom: 20px;
-    }
+            <div class="form-group">
+                <label asp-for="Prenom"></label>
+                <input asp-for="Prenom" class="form-control" />
+                <span asp-validation-for="Prenom" class="text-danger"></span>
+            </div>
 
-    form {
-        text-align: center;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-        text-align: left;
-    }
-
-        .form-group:last-of-type {
-            margin-bottom: 30px;
-        }
-
-    label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 600;
-    }
-
-    input.form-control {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .btn-custom {
-        background-color: #00BF63;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-    }
-
-        .btn-custom:hover,
-        .btn-custom:focus,
-        .btn-custom:active {
-            background-color: #00994a;
-            color: white;
-        }
-
-    .text-danger {
-        text-align: left;
-        font-size: 0.875em;
-    }
-</style>
-
-<div class="container-center">
-    <h2>@ViewData["Title"]</h2>
-    <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
-        <h4>Créer un nouveau compte.</h4>
-        <hr />
-        <div asp-validation-summary="All" class="text-danger"></div>
-
-        <div class="form-group">
-            <label asp-for="Nom"></label>
-            <input asp-for="Nom" class="form-control" />
-            <span asp-validation-for="Nom" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Prenom"></label>
-            <input asp-for="Prenom" class="form-control" />
-            <span asp-validation-for="Prenom" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Email"></label>
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Password"></label>
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="ConfirmPassword"></label>
-            <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <button type="submit" class="btn btn-custom">S'inscrire</button>
-        </div>
-    </form>
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">S'inscrire</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {

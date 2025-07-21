@@ -4,130 +4,43 @@
     ViewData["Title"] = "Gestion du profil";
 }
 
-<style>
-    body {
-        background-color: #fef9e7;
-        margin: 0;
-        font-family: Arial, sans-serif;
-    }
+<h2>@ViewData["Title"]</h2>
 
-    .container-center {
-        max-width: 400px;
-        margin: 40px auto 60px;
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
+@if (ViewData["Message"] != null)
+{
+    <div class="alert alert-success">
+        @ViewData["Message"]
+    </div>
+}
 
-    h2 {
-        margin-bottom: 20px;
-    }
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Nom" class="control-label">Nom</label>
+        <input asp-for="Nom" class="form-control" />
+        <span asp-validation-for="Nom" class="text-danger"></span>
+    </div>
 
-    form {
-        text-align: left;
-    }
+    <div class="form-group">
+        <label asp-for="Prenom" class="control-label">Prénom</label>
+        <input asp-for="Prenom" class="form-control" />
+        <span asp-validation-for="Prenom" class="text-danger"></span>
+    </div>
 
-    .form-group {
-        margin-bottom: 15px;
-    }
+    <div class="form-group">
+        <label asp-for="Email" class="control-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
 
-    label.control-label {
-        font-weight: 600;
-        display: block;
-        margin-bottom: 5px;
-    }
+    <div class="form-group">
+        <label asp-for="PhoneNumber" class="control-label">Numéro de téléphone</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
 
-    input.form-control {
-        width: 100%;
-        box-sizing: border-box;
-    }
+    <button type="submit" class="btn btn-primary">Sauvegarder les modifications</button>
+</form>
 
-    .btn-custom {
-        background-color: #00BF63;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-        display: block;
-        width: 100%;
-        margin-top: 15px;
-    }
-
-        .btn-custom:hover,
-        .btn-custom:focus,
-        .btn-custom:active {
-            background-color: #00994a;
-            color: white;
-        }
-
-    .alert-success {
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-        color: #155724;
-        padding: 10px 15px;
-        margin-bottom: 20px;
-        border-radius: 4px;
-    }
-
-    .link-change-password {
-        display: block;
-        margin-top: 30px;
-        text-align: center;
-        font-weight: 600;
-        color: #00BF63;
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-
-        .link-change-password:hover,
-        .link-change-password:focus {
-            color: #00994a;
-            text-decoration: underline;
-        }
-</style>
-
-<div class="container-center">
-    <h2>@ViewData["Title"]</h2>
-
-    @if (ViewData["Message"] != null)
-    {
-        <div class="alert alert-success">
-            @ViewData["Message"]
-        </div>
-    }
-
-    <form method="post">
-        <div class="form-group">
-            <label asp-for="Nom" class="control-label">Nom</label>
-            <input asp-for="Nom" class="form-control" />
-            <span asp-validation-for="Nom" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Prenom" class="control-label">Prénom</label>
-            <input asp-for="Prenom" class="form-control" />
-            <span asp-validation-for="Prenom" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Email" class="control-label">Email</label>
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="PhoneNumber" class="control-label">Numéro de téléphone</label>
-            <input asp-for="PhoneNumber" class="form-control" />
-            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-custom">Sauvegarder les modifications</button>
-    </form>
-
-    <a href="@Url.Action("ChangePassword", "Account")" class="link-change-password">Modifier votre mot de passe</a>
+<div class="mt-4">
+    <a href="@Url.Action("ChangePassword", "Account")">Modifier votre mot de passe</a>
 </div>

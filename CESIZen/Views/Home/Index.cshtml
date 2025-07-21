@@ -1,77 +1,44 @@
-﻿@model List<CESIZen.Models.Activite>
-
-@{
+﻿@{
     ViewData["Title"] = "Accueil";
 }
 
-<style>
-    body {
-        background-color: #fef9e7; /* blanc cassé en background */
-        color: #222222; /* texte sombre */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+<div class="text-center">
+    <h1 class="display-4 mt-5 mb-5">CESIZen l'application de votre santé mentale</h1>
+
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <div class="d-flex justify-content-center mb-5">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Votre Espace</h5>
+                        <p class="card-text">Créez un compte pour suivre votre progression et recevoir des recommandations personnalisées.</p>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-primary">S'inscrire</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 
-    h2 span {
-        color: #2E8B57; /* vert pour "CesiZen" */
-    }
+    <div class="d-flex justify-content-center flex-wrap gap-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Questionnaires</h5>
+                    <p class="card-text">Évaluez votre niveau de stress et votre bien-être mental grâce à nos questionnaires.</p>
+                    <a asp-controller="ReponseQuestionnaires" asp-action="Formulaire" class="btn btn-primary">Commencer</a>
+                </div>
+            </div>
+        </div>
 
-    /* Style description */
-    #activiteDescription {
-        background-color: #dfe6d0; /* vert clair très doux */
-        border-color: #a4b78e;
-        color: #222222;
-    }
-</style>
-
-<div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-md-8 offset-md-2 text-center">
-            <h2 class="mb-3">Bienvenue sur <span>CesiZen</span></h2>
-            <p class="lead">
-                CesiZen est une application innovante dédiée au bien-être,
-                qui permet aux utilisateurs de réaliser facilement des activités relaxantes et de découvrir une multitude d’articles inspirants sur le bien-être.
-                Que vous cherchiez à prendre soin de vous au quotidien ou à explorer de nouvelles pratiques apaisantes,
-                CesiZen vous offre une expérience fluide et enrichissante,
-                avec des outils simples et intuitifs pour vous accompagner à chaque étape.
-            </p>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Informations</h5>
+                    <p class="card-text">Découvrez des conseils et des ressources pour améliorer votre santé mentale.</p>
+                    <a asp-controller="Information" asp-action="Index" class="btn btn-primary">Consulter</a>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="container py-5">
-        <h3>Liste des activités</h3>
-
-        <select class="form-select mb-3" id="activiteSelect" aria-label="Liste des activités">
-            <option value="" selected hidden>-- Choisissez une activité --</option>
-            @foreach (var activite in Model)
-            {
-                <option value="@activite.Id" data-description="@activite.Description">
-                    @activite.Nom
-                </option>
-            }
-        </select>
-
-        <!-- Conteneur pour afficher la description -->
-        <div id="activiteDescription" class="alert alert-info" style="display:none;"></div>
-
-    </div>
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const select = document.getElementById("activiteSelect");
-        const descContainer = document.getElementById("activiteDescription");
-
-        select.addEventListener("change", function () {
-            const selectedOption = select.options[select.selectedIndex];
-            const description = selectedOption.getAttribute("data-description");
-
-            if (description) {
-                descContainer.style.display = "block";
-                descContainer.innerText = description;
-            } else {
-                descContainer.style.display = "none";
-                descContainer.innerText = "";
-            }
-        });
-    });
-</script>

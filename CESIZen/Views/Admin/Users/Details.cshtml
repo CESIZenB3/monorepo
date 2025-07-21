@@ -5,12 +5,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    body {
-        background-color: #fef9e7;
-    }
-</style>
-
 <h1>Détails de l'utilisateur</h1>
 
 <div>
@@ -40,6 +34,6 @@
     </dl>
 </div>
 <div>
-    <a asp-controller="UserAdmin" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Modifier</a>
+    <a asp-controller="UserAdmin"  asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Modifier</a> 
     <a asp-controller="UserAdmin" asp-action="UsersList" class="btn btn-secondary">Retour à la liste</a>
 </div>

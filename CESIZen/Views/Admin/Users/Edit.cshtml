@@ -5,99 +5,12 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    body {
-        background-color: #fef9e7;
-        margin: 0;
-        font-family: Arial, sans-serif;
-    }
+<h1>Modifier un utilisateur</h1>
 
-    .container-center {
-        max-width: 500px;
-        margin: 40px auto 60px;
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-
-    h1 {
-        margin-bottom: 20px;
-    }
-
-    form {
-        text-align: left;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    label.control-label {
-        font-weight: 600;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    input.form-control, select.form-control {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .btn-custom-primary {
-        background-color: #00BF63;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-        margin-right: 10px;
-    }
-
-        .btn-custom-primary:hover,
-        .btn-custom-primary:focus,
-        .btn-custom-primary:active {
-            background-color: #00994a;
-            color: white;
-        }
-
-    .btn-custom-secondary {
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        line-height: 1.5;
-    }
-
-        .btn-custom-secondary:hover,
-        .btn-custom-secondary:focus,
-        .btn-custom-secondary:active {
-            background-color: #565e64;
-            color: white;
-            text-decoration: none;
-        }
-
-    .text-danger {
-        font-size: 0.875em;
-    }
-</style>
-
-<div class="container-center">
-    <h1>@ViewData["Title"]</h1>
-
-    <div>
-        <form asp-controller="UserAdmin" asp-action="Edit" method="post">
+<div class="row">
+    <div class="col-md-6">
+        <form asp-controller="UserAdmin" asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="UserName" />
             <input type="hidden" asp-for="NormalizedUserName" />
@@ -167,17 +80,19 @@
             </div>
 
             <div class="form-group mt-4">
-                <input type="submit" value="Enregistrer" class="btn-custom-primary" />
-                <a asp-action="UsersList" class="btn-custom-secondary">Retour à la liste</a>
+                <input type="submit" value="Enregistrer" class="btn btn-primary" />
+                <a asp-action="UsersList" class="btn btn-secondary">Retour à la liste</a>
             </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Sélectionner le rôle actuel
             var userRoles = @Html.Raw(Json.Serialize(ViewBag.UserRoles));
             if (userRoles && userRoles.length > 0) {
@@ -185,8 +100,8 @@
             }
 
             // Afficher/masquer les champs de mot de passe
-            $("#changePassword").change(function () {
-                if (this.checked) {
+            $("#changePassword").change(function() {
+                if(this.checked) {
                     $("#passwordFields").show();
                 } else {
                     $("#passwordFields").hide();

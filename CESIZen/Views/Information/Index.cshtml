@@ -1,42 +1,26 @@
-﻿@model IEnumerable<CESIZen.Models.Article>
+﻿@model IEnumerable<CESIZen.Models.Information>
 
 @{
-    ViewData["Title"] = "Articles";
+    ViewData["Title"] = "Informations";
 }
 
-<style>
-    body {
-        background-color: #FEF9E7;
-    }
-</style>
+<h2>Informations</h2>
 
-<div class="container mt-4" style="max-width: 800px;">
-    <h2 class="text-center mb-4">Liste des articles</h2>
-
-    @if (!Model.Any())
+<div class="accordion" id="infoAccordion">
+    @foreach (var info in Model)
     {
-        <div class="alert alert-info text-center">
-            Aucun article disponible pour le moment.
-        </div>
-    }
-    else
-    {
-        <div class="accordion" id="infoAccordion">
-            @foreach (var info in Model)
-            {
-                <div class="accordion-item mb-2 shadow-sm border rounded">
-                    <h2 class="accordion-header" id="heading@(info.Id)">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(info.Id)" aria-expanded="false" aria-controls="collapse@(info.Id)">
-                            @info.Titre
-                        </button>
-                    </h2>
-                    <div id="collapse@(info.Id)" class="accordion-collapse collapse" data-bs-parent="#infoAccordion">
-                        <div class="accordion-body">
-                            @Html.Raw(info.Contenu)
-                        </div>
-                    </div>
+        <div class="accordion-item mb-2">
+            <h2 class="accordion-header" id="heading@(info.Id)">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(info.Id)">
+                    @info.Titre
+                </button>
+            </h2>
+            <div id="collapse@(info.Id)" class="accordion-collapse collapse" data-bs-parent="#infoAccordion">
+                <div class="accordion-body">
+                    <p>@info.Contenu</p>
+                    <small><i>Publié le @info.DateCreation.ToShortDateString()</i></small>
                 </div>
-            }
+            </div>
         </div>
     }
 </div>

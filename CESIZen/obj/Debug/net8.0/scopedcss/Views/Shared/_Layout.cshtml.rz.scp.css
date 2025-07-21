@@ -40,16 +40,9 @@ button.accept-policy[b-wd8cee1qw8] {
 }
 
 .footer[b-wd8cee1qw8] {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    white-space: nowrap;
-    line-height: 60px;
-    background-color: #00BF63;
-    color: white;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
 }
-
-.custom-navbar[b-wd8cee1qw8] {
-    background-color: #00BF63 !important;
-}
-

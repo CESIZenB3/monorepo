@@ -27,32 +27,16 @@ namespace CESIZen.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
+                name: "Droits",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nom = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Prenom = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Statut = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                    TypeDroit = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.PrimaryKey("PK_Droits", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,6 +58,51 @@ namespace CESIZen.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Questionnaires",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Titre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    DateCreation = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Statut = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    ResultatNiveauStress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Questionnaires", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Questions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Texte = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Points = table.Column<int>(type: "int", nullable: false),
+                    TypeReponse = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Questions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Roles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NomRole = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -90,6 +119,89 @@ namespace CESIZen.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QuestionQuestionnaire",
+                columns: table => new
+                {
+                    QuestionnairesId = table.Column<int>(type: "int", nullable: false),
+                    QuestionsId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuestionQuestionnaire", x => new { x.QuestionnairesId, x.QuestionsId });
+                    table.ForeignKey(
+                        name: "FK_QuestionQuestionnaire_Questionnaires_QuestionnairesId",
+                        column: x => x.QuestionnairesId,
+                        principalTable: "Questionnaires",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_QuestionQuestionnaire_Questions_QuestionsId",
+                        column: x => x.QuestionsId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nom = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Prenom = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Statut = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IdRole = table.Column<int>(type: "int", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Roles_IdRole",
+                        column: x => x.IdRole,
+                        principalTable: "Roles",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Attribuer",
+                columns: table => new
+                {
+                    DroitsId = table.Column<int>(type: "int", nullable: false),
+                    RolesId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Attribuer", x => new { x.DroitsId, x.RolesId });
+                    table.ForeignKey(
+                        name: "FK_Attribuer_Droits_DroitsId",
+                        column: x => x.DroitsId,
+                        principalTable: "Droits",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Attribuer_Roles_RolesId",
+                        column: x => x.RolesId,
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -180,21 +292,25 @@ namespace CESIZen.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ReponsesQuestionnaire",
+                name: "QuestionnaireUtilisateur",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UtilisateurId = table.Column<int>(type: "int", nullable: false),
-                    DateReponse = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    QuestionnairesId = table.Column<int>(type: "int", nullable: false),
+                    UtilisateursId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReponsesQuestionnaire", x => x.Id);
+                    table.PrimaryKey("PK_QuestionnaireUtilisateur", x => new { x.QuestionnairesId, x.UtilisateursId });
                     table.ForeignKey(
-                        name: "FK_ReponsesQuestionnaire_AspNetUsers_UtilisateurId",
-                        column: x => x.UtilisateurId,
+                        name: "FK_QuestionnaireUtilisateur_AspNetUsers_UtilisateursId",
+                        column: x => x.UtilisateursId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_QuestionnaireUtilisateur_Questionnaires_QuestionnairesId",
+                        column: x => x.QuestionnairesId,
+                        principalTable: "Questionnaires",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -219,52 +335,6 @@ namespace CESIZen.Migrations
                         name: "FK_UtilisateurInformation_Informations_InformationsId",
                         column: x => x.InformationsId,
                         principalTable: "Informations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Questionnaires",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Libelle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Valeur = table.Column<int>(type: "int", nullable: false),
-                    ReponseQuestionnaireId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Questionnaires", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Questionnaires_ReponsesQuestionnaire_ReponseQuestionnaireId",
-                        column: x => x.ReponseQuestionnaireId,
-                        principalTable: "ReponsesQuestionnaire",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ReponsesEvenement",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReponseQuestionnaireId = table.Column<int>(type: "int", nullable: false),
-                    QuestionnaireStressId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ReponsesEvenement", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ReponsesEvenement_Questionnaires_QuestionnaireStressId",
-                        column: x => x.QuestionnaireStressId,
-                        principalTable: "Questionnaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ReponsesEvenement_ReponsesQuestionnaire_ReponseQuestionnaireId",
-                        column: x => x.ReponseQuestionnaireId,
-                        principalTable: "ReponsesQuestionnaire",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -302,6 +372,11 @@ namespace CESIZen.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_IdRole",
+                table: "AspNetUsers",
+                column: "IdRole");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -309,24 +384,19 @@ namespace CESIZen.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Questionnaires_ReponseQuestionnaireId",
-                table: "Questionnaires",
-                column: "ReponseQuestionnaireId");
+                name: "IX_Attribuer_RolesId",
+                table: "Attribuer",
+                column: "RolesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ReponsesEvenement_QuestionnaireStressId",
-                table: "ReponsesEvenement",
-                column: "QuestionnaireStressId");
+                name: "IX_QuestionnaireUtilisateur_UtilisateursId",
+                table: "QuestionnaireUtilisateur",
+                column: "UtilisateursId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ReponsesEvenement_ReponseQuestionnaireId",
-                table: "ReponsesEvenement",
-                column: "ReponseQuestionnaireId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReponsesQuestionnaire_UtilisateurId",
-                table: "ReponsesQuestionnaire",
-                column: "UtilisateurId");
+                name: "IX_QuestionQuestionnaire_QuestionsId",
+                table: "QuestionQuestionnaire",
+                column: "QuestionsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UtilisateurInformation_UtilisateursId",
@@ -353,7 +423,13 @@ namespace CESIZen.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "ReponsesEvenement");
+                name: "Attribuer");
+
+            migrationBuilder.DropTable(
+                name: "QuestionnaireUtilisateur");
+
+            migrationBuilder.DropTable(
+                name: "QuestionQuestionnaire");
 
             migrationBuilder.DropTable(
                 name: "UtilisateurInformation");
@@ -362,16 +438,22 @@ namespace CESIZen.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "Droits");
+
+            migrationBuilder.DropTable(
                 name: "Questionnaires");
+
+            migrationBuilder.DropTable(
+                name: "Questions");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Informations");
 
             migrationBuilder.DropTable(
-                name: "ReponsesQuestionnaire");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Roles");
         }
     }
 }

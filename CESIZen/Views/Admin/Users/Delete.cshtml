@@ -5,12 +5,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    body {
-        background-color: #fef9e7;
-    }
-</style>
-
 <h1>Supprimer l'utilisateur</h1>
 
 <div class="alert alert-danger">
@@ -46,6 +40,6 @@
     <form asp-controller="UserAdmin" asp-action="Delete">
         <input type="hidden" asp-for="Id" />
         <input type="submit" value="Supprimer" class="btn btn-danger" />
-        <a asp-controller="UserAdmin" asp-action="UsersList" class="btn btn-secondary">Annuler</a>
+        <a asp-controller="UserAdmin" asp-action="UsersList" class="btn btn-secondary">Retour à la liste</a>
     </form>
 </div>
