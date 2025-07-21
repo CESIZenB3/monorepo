@@ -25,6 +25,11 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
+      - name: Install coverlet.collector (if missing)
+        run: |
+          echo "Installing coverlet.collector to ensure coverage collection works..."
+          dotnet add ../CESIZen.Tests package coverlet.collector --version 6.0.0
+
       - name: Run tests with coverage (cobertura)
         run: |
           # Create TestResults directory if it doesn't exist
@@ -36,14 +41,25 @@ jobs:
             --results-directory ./TestResults \
             --configuration Release \
             --logger "trx;LogFileName=test-results.trx" \
-            --verbosity normal
+            --verbosity normal \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
 
       - name: Debug - List test results
         run: |
           echo "Listing contents of TestResults directory:"
-          find ./TestResults -type f -name "*.xml" | head -20
-          echo "Looking for any coverage files:"
-          find ./TestResults -name "*coverage*" -type f | head -20
+          find ./TestResults -type f | head -20
+          echo ""
+          echo "Looking for any coverage files recursively:"
+          find ./TestResults -name "*coverage*" -type f 2>/dev/null | head -20
+          echo ""
+          echo "Looking for any XML files:"
+          find ./TestResults -name "*.xml" -type f 2>/dev/null | head -20
+          echo ""
+          echo "Full directory structure:"
+          ls -la ./TestResults/ || echo "TestResults directory empty or doesn't exist"
+          echo ""
+          # Look in subdirectories too
+          find ./TestResults -type d -exec ls -la {} \; 2>/dev/null | head -30
 
       - name: Find cobertura coverage file
         id: find_coverage
