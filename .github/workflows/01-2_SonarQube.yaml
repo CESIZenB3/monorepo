@@ -25,6 +25,24 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
+      - name: Create coverlet.runsettings
+        run: |
+          cat > coverlet.runsettings << EOF
+          <?xml version="1.0" encoding="utf-8" ?>
+          <RunSettings>
+            <DataCollectionRunSettings>
+              <DataCollectors>
+                <DataCollector friendlyName="XPlat code coverage">
+                  <Configuration>
+                    <Format>cobertura</Format>
+                    <Exclude>[*]System.*</Exclude>
+                  </Configuration>
+                </DataCollector>
+              </DataCollectors>
+            </DataCollectionRunSettings>
+          </RunSettings>
+          EOF
+
       - name: Install coverlet.collector (if missing)
         run: |
           echo "Installing coverlet.collector to ensure coverage collection works..."
@@ -35,14 +53,14 @@ jobs:
           # Create TestResults directory if it doesn't exist
           mkdir -p ./TestResults
           
-          # Run tests with coverage - using correct relative path
+          # Run tests with coverage using runsettings
           dotnet test ../CESIZen.Tests \
             --collect:"XPlat Code Coverage" \
             --results-directory ./TestResults \
             --configuration Release \
+            --settings coverlet.runsettings \
             --logger "trx;LogFileName=test-results.trx" \
-            --verbosity normal \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+            --verbosity normal
 
       - name: Debug - List test results
         run: |
