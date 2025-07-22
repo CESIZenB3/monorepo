@@ -20,13 +20,16 @@ jobs:
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-            - name: Azure CLI Create Ressource Group
+            - name: Azure CLI Create Resource Group
               uses: azure/CLI@v2  
               with:
                 inlineScript: |
-                    #!/bin/bash
-                    az group create --name ${{env.RessourceGroupName}} --location ${{env.RessourceGroupLocation}}
-                    echo "Azure resource group created"
+                  #!/bin/bash
+                  echo "Creating resource group: $ResourceGroupName in $ResourceGroupLocation"
+                  az group create \
+                    --name "$ResourceGroupName" \
+                    --location "$ResourceGroupLocation"
+
 
             - name: Azure ARM Deploy
               uses: azure/arm-deploy@v2
