@@ -13,21 +13,25 @@ jobs:
       ResourceGroupLocation: "francecentral"
 
     steps:
+      # 1. Récupération du code
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. Connexion à Azure
       - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          
+
+      # 3. Création du groupe de ressources
       - name: Azure CLI Create Resource Group
         run: |
           az group create --name ${{ env.ResourceGroupName }} --location ${{ env.ResourceGroupLocation }}
           echo "Azure resource group created"
-      
+
+      # 4. Nettoyage des IPs publiques inutilisées
       - name: Cleanup unused Public IPs
         run: |
           echo "Listing all public IPs in subscription..."
@@ -42,7 +46,8 @@ jobs:
               az network public-ip delete --name "$name" --resource-group "$rg" --no-wait || true
             fi
           done
-          
+
+      # 5. Suppression des anciens groupes "canary"
       - name: Cleanup old canary deployments
         run: |
           echo "Deleting old canary resource groups..."
@@ -52,7 +57,8 @@ jobs:
               az group delete --name "$rg_name" --yes --no-wait || true
             fi
           done
-    
+
+      # 6. Déploiement ARM
       - name: Déployer ARM template via Azure CLI
         run: |
           az deployment group create \
@@ -62,68 +68,73 @@ jobs:
             --parameters adminUsername=${{ secrets.AZURE_VM_LOGIN }} adminPasswordOrKey=${{ secrets.AZURE_VM_PASSWORD }} vmName="Canary-Server" vmSize="Standard_B2s" \
             --debug
 
-      
+      # 7. Ouvrir les ports nécessaires
       - name: Open Port on Security Group
         run: |
           az network nsg rule create --resource-group ${{ env.ResourceGroupName }} --nsg-name SecGroupNet --name OuvrirPort12000 --priority 100 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes "*" --source-port-ranges "*" --destination-address-prefixes "*" --destination-port-ranges 12000
           az network nsg rule create --resource-group ${{ env.ResourceGroupName }} --nsg-name SecGroupNet --name OuvrirPort80 --priority 101 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes "*" --source-port-ranges "*" --destination-address-prefixes "*" --destination-port-ranges 80
 
-
+      # 8. Récupérer l'IP publique
       - name: Get Public IP et créer règle 
         if: success()
         run: |
-          az vm show -d -g ${{ env.ResourceGroupName }} -n Canary-Server --query publicIps -o tsv
-          echo "AZURE_VM_IP=$(az vm show -d -g ${{ env.ResourceGroupName }} -n Canary-Server --query publicIps -o tsv)" >> $GITHUB_ENV            
-      
+          echo "AZURE_VM_IP=$(az vm show -d -g ${{ env.ResourceGroupName }} -n Canary-Server --query publicIps -o tsv)" >> $GITHUB_ENV
+
+      # 9. Installer Docker sur la VM
       - name: Install Docker on VM
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{env.AZURE_VM_IP}}
-          port: ${{secrets.PORT}} 
-          username: ${{secrets.AZURE_VM_LOGIN}}
-          password: ${{secrets.AZURE_VM_PASSWORD}}
+          host: ${{ env.AZURE_VM_IP }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.AZURE_VM_LOGIN }}
+          password: ${{ secrets.AZURE_VM_PASSWORD }}
           script: |
             curl -o install_docker.sh https://raw.githubusercontent.com/azure-custom-cli/scripts/refs/heads/main/install_docker_ubuntu.sh
-            ls -al
             bash ./install_docker.sh
 
+      # 10. Configurer DNS
       - name: Set DNS Domain in CesiZen
         run: |
           az network dns record-set a add-record -g CesiZenB3 -z demo-cesizenb3.com -n mono -a ${{ env.AZURE_VM_IP }}
-            
-      - name: Checkout
-        uses: actions/checkout@v4
-    
+
+      # 11. Vérifier que le fichier docker-compose existe
+      - name: Debug - Check docker-compose.yaml exists
+        run: |
+          echo "Vérification du fichier docker-compose.yaml"
+          ls -la ./docker-compose.yaml
+
+      # 12. Copier le fichier docker-compose vers la VM
       - name: Update compose file
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{env.AZURE_VM_IP}}
-          port: ${{secrets.PORT}} 
-          username: ${{secrets.AZURE_VM_LOGIN}}
-          password: ${{secrets.AZURE_VM_PASSWORD}}
-
+          host: ${{ env.AZURE_VM_IP }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.AZURE_VM_LOGIN }}
+          password: ${{ secrets.AZURE_VM_PASSWORD }}
           source: "./docker-compose.yaml"
           target: "."
 
+      # 13. Mise en forme du nom d'image Docker
       - name: Downcase Image Name
         run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
-  
+
+      # 14. Récupération du short SHA pour versionner l’image
       - name: Split SHA to 7 Char for version
         run: echo "VERSION=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
+      # 15. Démarrer le conteneur via docker-compose
       - name: Start compose file
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{env.AZURE_VM_IP}}
-          port: ${{secrets.PORT}} 
-          username: ${{secrets.AZURE_VM_LOGIN}}
-          password: ${{secrets.AZURE_VM_PASSWORD}}
-
+          host: ${{ env.AZURE_VM_IP }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.AZURE_VM_LOGIN }}
+          password: ${{ secrets.AZURE_VM_PASSWORD }}
           script: |
-            echo MONO_PROJECT_BACK=ghcr.io/${{env.IMAGE_NAME_LOWER}}-back:canary > .env
-            echo MONO_PROJECT_FRONT=ghcr.io/${{env.IMAGE_NAME_LOWER}}-front:canary >> .env
+            echo MONO_PROJECT_BACK=ghcr.io/${{ env.IMAGE_NAME_LOWER }}-back:canary > .env
+            echo MONO_PROJECT_FRONT=ghcr.io/${{ env.IMAGE_NAME_LOWER }}-front:canary >> .env
 
-            docker pull ghcr.io/${{env.IMAGE_NAME_LOWER}}-back:canary
-            docker pull ghcr.io/${{env.IMAGE_NAME_LOWER}}-front:canary
+            docker pull ghcr.io/${{ env.IMAGE_NAME_LOWER }}-back:canary
+            docker pull ghcr.io/${{ env.IMAGE_NAME_LOWER }}-front:canary
 
             docker compose up -d
