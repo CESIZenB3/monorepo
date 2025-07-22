@@ -36,7 +36,7 @@ jobs:
               with:
                 resourceGroupName: ${{env.ResourceGroupName}}
                 scope: resourcegroup
-                template: https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.compute/vm-simple-linux/azuredeploy.json
+                template: https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.compute/vm-simple-linux/azureDeploy.json
                 parameters: adminUsername=${{secrets.AZURE_VM_LOGIN}} adminPasswordOrKey=${{secrets.AZURE_VM_PASSWORD}} vmName="Canary-Server" vmSize="Standard_B2s"
 
             - name: Open Port on Security Group
