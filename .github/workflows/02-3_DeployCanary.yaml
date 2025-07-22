@@ -42,6 +42,16 @@ jobs:
               az network public-ip delete --name "$name" --resource-group "$rg" --no-wait || true
             fi
           done
+          
+      - name: Cleanup old canary deployments
+        run: |
+          echo "Deleting old canary resource groups..."
+          az group list --query "[?starts_with(name, 'monorepo-canary')].[name]" -o tsv | while read rg_name; do
+            if [ "$rg_name" != "${{ env.ResourceGroupName }}" ]; then
+              echo "Deleting resource group: $rg_name"
+              az group delete --name "$rg_name" --yes --no-wait || true
+            fi
+          done
     
       - name: Déployer ARM template via Azure CLI
         run: |
