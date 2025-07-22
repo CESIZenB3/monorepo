@@ -33,7 +33,7 @@ jobs:
           az deployment group create \
             --name canaryDeployment-${{ github.run_number }} \
             --resource-group ${{ env.ResourceGroupName }} \
-            --template-uri "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/refs/heads/master/quickstarts/microsoft.compute/vm-simple-linux/azureDeploy.json" \
+            --template-uri "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.compute/vm-simple-linux/azureDeploy.json"
             --parameters adminUsername=${{ secrets.AZURE_VM_LOGIN }} adminPasswordOrKey=${{ secrets.AZURE_VM_PASSWORD }} vmName="Canary-Server" vmSize="Standard_B2s" \
             --no-prompt
 
