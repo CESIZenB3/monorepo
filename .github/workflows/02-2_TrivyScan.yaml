@@ -26,13 +26,22 @@ jobs:
       - name: Downcase Image Name
         run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
-      - name: Pull or Build Docker Image (Back)
+      - name: Try to Pull Docker Image
+        id: docker_pull
         run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary || \
+          echo "Trying to pull image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary"
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary || echo "Image not found"
+
+      - name: Fallback Build if Pull Fails
+        if: steps.docker_pull.outcome == 'failure'
+        run: |
+          echo "Building image locally as fallback..."
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary .
 
       - name: Trivy BACK vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
+        env:
+            TRIVY_DEBUG: true
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary
           format: 'table'
