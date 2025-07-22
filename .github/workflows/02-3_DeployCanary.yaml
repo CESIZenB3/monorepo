@@ -110,8 +110,8 @@ jobs:
             username: ${{ secrets.AZURE_VM_LOGIN }}
             password: ${{ secrets.AZURE_VM_PASSWORD }}
             source: |
-                docker-compose.yaml
-                Dockerfile
+                ./docker-compose.yaml
+                ./Dockerfile
             target: .
 
 
