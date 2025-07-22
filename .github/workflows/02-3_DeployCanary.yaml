@@ -31,6 +31,7 @@ jobs:
       - name: Déployer ARM template via Azure CLI
         uses: azure/CLI@v2
         with:
+            azcliversion: 2.57.0  # Version mise à jour
             inlineScript: |
                 az deployment group create \
                     --name canaryDeployment-${{ github.run_number }} \
