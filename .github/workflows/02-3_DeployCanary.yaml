@@ -104,15 +104,16 @@ jobs:
           ls -la ./docker-compose.yaml
 
       # 12. Copier le fichier docker-compose vers la VM
-      - name: Update compose file
+      - name: Copier le fichier docker-compose.yaml sur la VM
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ env.AZURE_VM_IP }}
-          port: ${{ secrets.PORT }}
-          username: ${{ secrets.AZURE_VM_LOGIN }}
-          password: ${{ secrets.AZURE_VM_PASSWORD }}
-          source: "./infra/docker-compose.yaml"
-          target: "."
+            host: ${{ env.AZURE_VM_IP }}
+            port: ${{ secrets.PORT }}
+            username: ${{ secrets.AZURE_VM_LOGIN }}
+            password: ${{ secrets.AZURE_VM_PASSWORD }}
+            source: "docker-compose.yaml"
+            target: "."
+
 
       # 13. Mise en forme du nom d'image Docker
       - name: Downcase Image Name
