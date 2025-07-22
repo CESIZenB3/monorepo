@@ -87,7 +87,7 @@ jobs:
         run: |
           az network dns record-set a add-record -g CesiZenB3 -z demo-cesizenb3.com -n mono -a ${{ env.AZURE_VM_IP }}
 
-     # 11. Debug - Vérifier la structure du projet
+      # 11. Debug - Vérifier la structure du projet
       - name: Debug - Structure du projet
         run: |
           echo "=== Recherche des fichiers C# ==="
@@ -113,7 +113,7 @@ jobs:
       - name: Downcase Image Name
         run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
-      # 14. Version courte du SHA
+      # 14. Version courte du SHA (ERREUR CORRIGÉE)
       - name: Short SHA version
         run: echo "VERSION=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
