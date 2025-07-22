@@ -102,17 +102,15 @@ jobs:
           echo "Tous les fichiers nécessaires sont présents"
 
       # 12. Copier les fichiers vers la VM
-      - name: Copier docker-compose.yaml et Dockerfile
+      - name: Copier docker-compose.yaml
         uses: appleboy/scp-action@v0.1.7
         with:
             host: ${{ env.AZURE_VM_IP }}
             port: ${{ secrets.PORT }}
             username: ${{ secrets.AZURE_VM_LOGIN }}
             password: ${{ secrets.AZURE_VM_PASSWORD }}
-            source: "docker-compose.yaml,Dockerfile"  # Virgule sans espace, pas de ./
-            target: "/home/${{ secrets.AZURE_VM_LOGIN }}/"  # Chemin absolu sur la VM
-
-
+            source: "docker-compose.yaml"
+            target: "/home/${{ secrets.AZURE_VM_LOGIN }}/"
 
 
       # 13. Downcase nom d'image
