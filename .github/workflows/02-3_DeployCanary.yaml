@@ -109,10 +109,9 @@ jobs:
             port: ${{ secrets.PORT }}
             username: ${{ secrets.AZURE_VM_LOGIN }}
             password: ${{ secrets.AZURE_VM_PASSWORD }}
-            source: |
-                ./docker-compose.yaml
-                ./Dockerfile
-            target: .
+            source: "docker-compose.yaml,Dockerfile"  # Virgule sans espace, pas de ./
+            target: "/home/${{ secrets.AZURE_VM_LOGIN }}/"  # Chemin absolu sur la VM
+
 
 
 
