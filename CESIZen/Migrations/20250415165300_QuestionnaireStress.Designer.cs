@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CESIZen.Migrations
 {
     [DbContext(typeof(CesiZenDbContext))]
-    [Migration("20250708090725_Article")]
-    partial class Article
+    [Migration("20250415165300_QuestionnaireStress")]
+    partial class QuestionnaireStress
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace CESIZen.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CESIZen.Models.Activite", b =>
+            modelBuilder.Entity("CESIZen.Models.Droit", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,22 +33,14 @@ namespace CESIZen.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ContenuHtml")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
+                    b.Property<string>("TypeDroit")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("nvarchar(400)");
-
-                    b.Property<string>("Nom")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Activites");
+                    b.ToTable("Droits");
                 });
 
             modelBuilder.Entity("CESIZen.Models.Information", b =>
@@ -108,6 +100,38 @@ namespace CESIZen.Migrations
                     b.HasIndex("ReponseQuestionnaireId");
 
                     b.ToTable("Questionnaires");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Libelle = "Décès du conjoint",
+                            Valeur = 100
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Libelle = "Divorce",
+                            Valeur = 73
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Libelle = "Séparation",
+                            Valeur = 65
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Libelle = "Prison",
+                            Valeur = 63
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Libelle = "Mort d'un proche",
+                            Valeur = 63
+                        });
                 });
 
             modelBuilder.Entity("CESIZen.Models.ReponseEvenement", b =>
@@ -118,10 +142,16 @@ namespace CESIZen.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("EstSurvenu")
+                        .HasColumnType("bit");
+
                     b.Property<int>("QuestionnaireStressId")
                         .HasColumnType("int");
 
                     b.Property<int>("ReponseQuestionnaireId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ValeurPoints")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -144,8 +174,7 @@ namespace CESIZen.Migrations
                     b.Property<DateTime>("DateReponse")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UtilisateurId")
-                        .IsRequired()
+                    b.Property<int>("UtilisateurId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -153,6 +182,24 @@ namespace CESIZen.Migrations
                     b.HasIndex("UtilisateurId");
 
                     b.ToTable("ReponsesQuestionnaire");
+                });
+
+            modelBuilder.Entity("CESIZen.Models.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("NomRole")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("CESIZen.Models.Utilisateur", b =>
@@ -176,6 +223,9 @@ namespace CESIZen.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("IdRole")
+                        .HasColumnType("int");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -227,6 +277,8 @@ namespace CESIZen.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdRole");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -238,26 +290,19 @@ namespace CESIZen.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("CesiZenModel.Entities.Article", b =>
+            modelBuilder.Entity("DroitRole", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("DroitsId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Contenu")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("DroitsId", "RolesId");
 
-                    b.Property<string>("Titre")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
+                    b.HasIndex("RolesId");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("Articles");
+                    b.ToTable("Attribuer", (string)null);
                 });
 
             modelBuilder.Entity("InformationUtilisateur", b =>
@@ -445,6 +490,30 @@ namespace CESIZen.Migrations
                     b.Navigation("Utilisateur");
                 });
 
+            modelBuilder.Entity("CESIZen.Models.Utilisateur", b =>
+                {
+                    b.HasOne("CESIZen.Models.Role", "Role")
+                        .WithMany("Utilisateurs")
+                        .HasForeignKey("IdRole");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("DroitRole", b =>
+                {
+                    b.HasOne("CESIZen.Models.Droit", null)
+                        .WithMany()
+                        .HasForeignKey("DroitsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CESIZen.Models.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InformationUtilisateur", b =>
                 {
                     b.HasOne("CESIZen.Models.Information", null)
@@ -516,6 +585,11 @@ namespace CESIZen.Migrations
                     b.Navigation("EvenementsStress");
 
                     b.Navigation("ReponsesEvenement");
+                });
+
+            modelBuilder.Entity("CESIZen.Models.Role", b =>
+                {
+                    b.Navigation("Utilisateurs");
                 });
 
             modelBuilder.Entity("CESIZen.Models.Utilisateur", b =>

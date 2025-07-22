@@ -1,0 +1,42 @@
+name: 01-1 - Integration - TEST
+
+on:
+  workflow_call
+
+jobs:
+  BackendTests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./CESIZen
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x' # ou 7.0.x ou 6.0.x selon ton projet
+
+      - name: Restore dependencies
+        run: dotnet restore ../CESIZen.sln
+
+      - name: Build solution
+        run: dotnet build ../CESIZen.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test ../CESIZen.sln --no-build --verbosity normal --logger trx --results-directory ./TestResults --collect:"XPlat Code Coverage"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: ./CESIZen/TestResults
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-code-coverage
+          path: ./CESIZen/TestResults/**/coverage.cobertura.xml
+          retention-days: 1
