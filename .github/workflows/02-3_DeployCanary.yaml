@@ -27,6 +27,21 @@ jobs:
         run: |
           az group create --name ${{ env.ResourceGroupName }} --location ${{ env.ResourceGroupLocation }}
           echo "Azure resource group created"
+      
+      - name: Cleanup unused Public IPs
+        run: |
+          echo "Listing all public IPs in subscription..."
+          az network public-ip list --query "[?ipConfiguration==null].[name,resourceGroup]" -o table
+          
+          echo "Deleting unused public IPs..."
+          az network public-ip list --query "[?ipConfiguration==null]" --output tsv | while read line; do
+            if [ ! -z "$line" ]; then
+              name=$(echo $line | cut -f1)
+              rg=$(echo $line | cut -f2)
+              echo "Deleting unused public IP: $name in resource group: $rg"
+              az network public-ip delete --name "$name" --resource-group "$rg" --no-wait || true
+            fi
+          done
     
       - name: Déployer ARM template via Azure CLI
         run: |
