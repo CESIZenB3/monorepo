@@ -87,9 +87,9 @@ jobs:
             ls -al
             bash ./install_docker.sh
 
-      - name: Set DNS Domain in ClicBoumPaf
+      - name: Set DNS Domain in CesiZen
         run: |
-          az network dns record-set a add-record -g ClicBoumPaf -z testeur.clic-boum-paf.com -n mono -a ${{ env.AZURE_VM_IP }}
+          az network dns record-set a add-record -g CesiZenB3 -z demo-cesizenb3.com -n mono -a ${{ env.AZURE_VM_IP }}
             
       - name: Checkout
         uses: actions/checkout@v4
