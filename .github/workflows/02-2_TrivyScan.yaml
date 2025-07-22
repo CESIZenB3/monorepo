@@ -33,7 +33,7 @@ jobs:
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary || echo "Image not found"
 
       - name: Fallback Build if Pull Fails
-        if: steps.docker_pull.outcome == 'failure'
+        if: steps.docker_pull.conclusion == 'failure'
         run: |
           echo "Building image locally as fallback..."
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary .
