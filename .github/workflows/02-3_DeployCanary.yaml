@@ -115,7 +115,7 @@ jobs:
 
       # 14. Version courte du SHA
       - name: Short SHA version
-        run: echo "VERSION=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV}
+        run: echo "VERSION=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
       # 15. Vérifier, construire et démarrer
       - name: Vérifier et démarrer Docker
