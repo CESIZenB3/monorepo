@@ -87,11 +87,19 @@ jobs:
         run: |
           az network dns record-set a add-record -g CesiZenB3 -z demo-cesizenb3.com -n mono -a ${{ env.AZURE_VM_IP }}
 
-      # 11. Vérifier docker-compose.yaml
-      - name: Debug - Check docker-compose.yaml exists
+      # 11. Vérifier que les fichiers existent
+      - name: Vérification de docker-compose.yaml et Dockerfile
         run: |
-          echo "Vérification du fichier docker-compose.yaml"
-          ls -la ./docker-compose.yaml
+          echo "Vérification de la présence des fichiers"
+          if [ ! -f ./docker-compose.yaml ]; then
+            echo "::error::Fichier docker-compose.yaml manquant à la racine"
+            exit 1
+          fi
+          if [ ! -f ./Dockerfile ]; then
+            echo "::error::Fichier Dockerfile manquant à la racine"
+            exit 1
+          fi
+          echo "Tous les fichiers nécessaires sont présents"
 
       # 12. Copier les fichiers vers la VM
       - name: Copier docker-compose.yaml et Dockerfile
@@ -102,8 +110,8 @@ jobs:
           username: ${{ secrets.AZURE_VM_LOGIN }}
           password: ${{ secrets.AZURE_VM_PASSWORD }}
           source: |
-            docker-compose.yaml
-            Dockerfile
+            ./docker-compose.yaml
+            ./Dockerfile
           target: .
 
       # 13. Downcase nom d'image
