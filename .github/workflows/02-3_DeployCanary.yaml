@@ -87,31 +87,27 @@ jobs:
         run: |
           az network dns record-set a add-record -g CesiZenB3 -z demo-cesizenb3.com -n mono -a ${{ env.AZURE_VM_IP }}
 
-      # 11. Vérifier que les fichiers existent
-      - name: Vérification de docker-compose.yaml et Dockerfile
+     # 11. Debug - Vérifier la structure du projet
+      - name: Debug - Structure du projet
         run: |
-          echo "Vérification de la présence des fichiers"
-          if [ ! -f ./docker-compose.yaml ]; then
-            echo "::error::Fichier docker-compose.yaml manquant à la racine"
-            exit 1
-          fi
-          if [ ! -f ./Dockerfile ]; then
-            echo "::error::Fichier Dockerfile manquant à la racine"
-            exit 1
-          fi
-          echo "Tous les fichiers nécessaires sont présents"
+          echo "=== Recherche des fichiers C# ==="
+          find . -name "*.sln" -o -name "*.csproj"
+          echo "=== Structure des répertoires ==="
+          ls -la
+          echo "=== Contenu détaillé ==="
+          find . -type f \( -name "*.sln" -o -name "*.csproj" -o -name "Dockerfile" -o -name "docker-compose.yaml" \)
 
-      # 12. Copier les fichiers vers la VM
-      - name: Copier docker-compose.yaml
+      # 12. Copier TOUT le projet
+      - name: Copier le projet complet
         uses: appleboy/scp-action@v0.1.7
         with:
-            host: ${{ env.AZURE_VM_IP }}
-            port: ${{ secrets.PORT }}
-            username: ${{ secrets.AZURE_VM_LOGIN }}
-            password: ${{ secrets.AZURE_VM_PASSWORD }}
-            source: "docker-compose.yaml"
-            target: "/home/${{ secrets.AZURE_VM_LOGIN }}/"
-
+          host: ${{ env.AZURE_VM_IP }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.AZURE_VM_LOGIN }}
+          password: ${{ secrets.AZURE_VM_PASSWORD }}
+          source: "."
+          target: "/home/${{ secrets.AZURE_VM_LOGIN }}/project/"
+          strip_components: 0
 
       # 13. Downcase nom d'image
       - name: Downcase Image Name
@@ -119,30 +115,64 @@ jobs:
 
       # 14. Version courte du SHA
       - name: Short SHA version
-        run: echo "VERSION=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+        run: echo "VERSION=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV}
 
-    # 15. Démarrer docker-compose avec gestion des erreurs
-      - name: Démarrer docker-compose sur la VM
+      # 15. Vérifier, construire et démarrer
+      - name: Vérifier et démarrer Docker
         uses: appleboy/ssh-action@v1.0.3
         with:
-            host: ${{ env.AZURE_VM_IP }}
-            port: ${{ secrets.PORT }}
-            username: ${{ secrets.AZURE_VM_LOGIN }}
-            password: ${{ secrets.AZURE_VM_PASSWORD }}
-            script: |
-                echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-                # Vérifier si les images existent, sinon construire localement
-                if docker manifest inspect ghcr.io/${{ env.IMAGE_NAME_LOWER }}-back:canary >/dev/null 2>&1; then
-                    echo "MONO_PROJECT_BACK=ghcr.io/${{ env.IMAGE_NAME_LOWER }}-back:canary" > .env
-                    echo "MONO_PROJECT_FRONT=ghcr.io/${{ env.IMAGE_NAME_LOWER }}-front:canary" >> .env
-                    docker pull ghcr.io/${{ env.IMAGE_NAME_LOWER }}-back:canary
-                    docker pull ghcr.io/${{ env.IMAGE_NAME_LOWER }}-front:canary
-                else
-                    echo "Images canary non trouvées, construction locale..."
-                    docker compose build
-                fi
-
-                docker compose up -d
-
+          host: ${{ env.AZURE_VM_IP }}
+          port: ${{ secrets.PORT }}
+          username: ${{ secrets.AZURE_VM_LOGIN }}
+          password: ${{ secrets.AZURE_VM_PASSWORD }}
+          script: |
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
+            # Naviguer vers le répertoire du projet
+            cd ~/project
+            
+            echo "=== Vérification des fichiers copiés ==="
+            ls -la
+            
+            echo "=== Recherche des fichiers requis ==="
+            find . -name "*.sln" -o -name "*.csproj" | head -10
+            
+            # Vérifier si les fichiers existent
+            if [ ! -f "CESIZen.sln" ]; then
+              echo "ERREUR: CESIZen.sln non trouvé dans $(pwd)"
+              echo "Fichiers .sln disponibles :"
+              find . -name "*.sln"
+              echo "Contenu du répertoire :"
+              ls -la
+              exit 1
+            fi
+            
+            if [ ! -d "CESIZen" ] || [ ! -f "CESIZen/CESIZen.csproj" ]; then
+              echo "ERREUR: CESIZen/CESIZen.csproj non trouvé"
+              echo "Fichiers .csproj disponibles :"
+              find . -name "*.csproj"
+              echo "Répertoires disponibles :"
+              find . -type d -name "*CESIZen*"
+              exit 1
+            fi
+            
+            echo "=== Tous les fichiers requis sont présents ==="
+            
+            # Nettoyer les anciens containers
+            docker compose down || true
+            docker system prune -f || true
+            
+            # Build et démarrage
+            echo "=== Construction des images Docker ==="
+            docker compose build --no-cache
+            
+            echo "=== Démarrage des services ==="
+            docker compose up -d
+            
+            # Vérification du statut
+            sleep 15
+            echo "=== Status des containers ==="
+            docker compose ps
+            
+            echo "=== Logs des services ==="
+            docker compose logs --tail=30
