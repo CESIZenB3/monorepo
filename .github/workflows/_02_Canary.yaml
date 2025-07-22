@@ -13,7 +13,7 @@ jobs:
             - run: env | sort
 
     Build_Push_Docker:
-        if: ${{github.ref.name == 'develop'}}
+        if: ${{ github.ref == 'refs/heads/develop' }}
         uses: ./.github/workflows/z_Docker-GHcr.yaml
         secrets: inherit
         with:
