@@ -9,8 +9,8 @@ jobs:
         environment: CANARY
 
         env:
-            RessourceGroupname: "CesiZenB3-Canary"
-            RessourceGrouplocation: "francecentral"
+            ResourceGroupName: "CesiZenB3-Canary"
+            ResourceGroupLocation: "francecentral"
 
         steps:
             - name: Azure Login
