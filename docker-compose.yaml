@@ -26,7 +26,7 @@ services:
     container_name: sqlserver-db
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=MonMotDePasse123!
+      - SA_PASSWORD=fabienL64
       - MSSQL_PID=Express
     ports:
       - "1433:1433"
