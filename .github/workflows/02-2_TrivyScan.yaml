@@ -1,4 +1,4 @@
-name: 02-2 - Delivery - Trivy Scan - C# Back
+name: 02-2 - Delivery - Trivy Scan
 
 on:
   workflow_call
@@ -6,17 +6,14 @@ on:
 env:
   REGISTRY: ghcr.io
   USERNAME: ${{ github.actor }}
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }} # orga/repo
 
 jobs:
-  Trivy_Scan_Back:
+  Trivy_Scan_Monolith:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Docker Registry Login
+      - name: Registry Login
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -26,35 +23,21 @@ jobs:
       - name: Downcase Image Name
         run: echo "IMAGE_NAME_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
-      - name: Try to Pull Docker Image
-        id: docker_pull
-        run: |
-          echo "Trying to pull image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary"
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary || echo "Image not found"
-
-      - name: Fallback Build if Pull Fails
-        if: steps.docker_pull.conclusion == 'failure'
-        run: |
-          echo "Building image locally as fallback..."
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary .
-
-      - name: Trivy BACK vulnerability scanner
+      - name: Trivy Monolith vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
-        env:
-            TRIVY_DEBUG: true
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}-back:canary
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:canary
           format: 'table'
           exit-code: '1'
-          output: 'back-trivy-results.txt'
+          output: 'monolith-trivy-results.txt'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
-      - name: Upload Trivy results BACK
+      - name: Upload Trivy results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: back-trivy-results
-          path: back-trivy-results.txt
+          name: monolith-trivy-results
+          path: monolith-trivy-results.txt
           retention-days: 1

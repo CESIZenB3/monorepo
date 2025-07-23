@@ -1,42 +1,54 @@
 name: 01-1 - Integration - TEST
 
 on:
-  workflow_call
+  push:
+    branches:
+      - main
+      - 'feature/**'
+  pull_request:
 
 jobs:
-  BackendTests:
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./CESIZen
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          SA_PASSWORD: "YourStrong!Passw0rd"
+          ACCEPT_EULA: "Y"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "exit 0"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    env:
+      ConnectionStrings__DefaultConnection: "Server=localhost;Database=TestDB;User Id=sa;Password=YourStrong!Passw0rd;"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x' # ou 7.0.x ou 6.0.x selon ton projet
+          dotnet-version: 8.0.x # ou adapte selon ta version cible
 
       - name: Restore dependencies
-        run: dotnet restore ../CESIZen.sln
+        run: dotnet restore
 
-      - name: Build solution
-        run: dotnet build ../CESIZen.sln --configuration Release --no-restore
+      - name: Build the solution
+        run: dotnet build --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test ../CESIZen.sln --no-build --verbosity normal --logger trx --results-directory ./TestResults --collect:"XPlat Code Coverage"
+        run: dotnet test --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx" --results-directory ./TestResults
 
-      - name: Upload test results
+      - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: backend-test-results
-          path: ./CESIZen/TestResults
-
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-code-coverage
-          path: ./CESIZen/TestResults/**/coverage.cobertura.xml
+          name: test-results
+          path: ./TestResults
           retention-days: 1
