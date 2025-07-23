@@ -8,6 +8,7 @@ COPY CESIZen/CESIZen.csproj CESIZen/
 COPY CESIZen.Tests/CESIZen.Tests.csproj CESIZen.Tests/
 COPY nuget.config /root/.nuget/NuGet/NuGet.Config
 
+RUN dotnet nuget locals all --clear
 
 # Restauration des dépendances
 RUN dotnet restore CESIZen.sln
@@ -17,7 +18,8 @@ COPY . .
 
 # Build et publish en Release
 WORKDIR /src/CESIZen
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish -c Release -o /app/publish
+
 
 # Étape 2 : Runtime (image plus légère)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
