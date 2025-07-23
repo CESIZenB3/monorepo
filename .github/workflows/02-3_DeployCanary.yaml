@@ -61,9 +61,9 @@ jobs:
       # 7. Ouvrir les ports nécessaires
       - name: Open Port on Security Group
         run: |
-          az network nsg rule create --resource-group ${{ env.ResourceGroupName }} --nsg-name SecGroupNet --name OuvrirPort12000 --priority 100 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes "*" --destination-port-ranges 12000
-          az network nsg rule create --resource-group ${{ env.ResourceGroupName }} --nsg-name SecGroupNet --name OuvrirPort80 --priority 101 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes "*" --destination-port-ranges 80
-
+          az network nsg rule create --resource-group ${{ env.ResourceGroupName }} --nsg-name SecGroupNet --name OuvrirPort5000 --priority 100 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes "*" --destination-port-ranges 5000
+          az network nsg rule create --resource-group ${{ env.ResourceGroupName }} --nsg-name SecGroupNet --name OuvrirPort5001 --priority 101 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes "*" --destination-port-ranges 5001
+      
       # 8. Récupérer l'IP publique
       - name: Get Public IP et créer règle 
         run: |
