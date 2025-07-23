@@ -1,7 +1,11 @@
 name: 02-3 - Deploy - Canary
 
 on:
-  workflow_call
+  push:
+    branches:
+      - main
+  workflow_call:
+
 
 jobs:
   AzureCanaryServer:
