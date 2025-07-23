@@ -12,7 +12,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sqlserver-db;Database=CESIZenDb;User Id=sa;Password=MonMotDePasse123!
+      - - ConnectionStrings__DefaultConnection=Server=sqlserver-db;Database=CESIZenDb;User Id=sa;Password=fabienL64;TrustServerCertificate=true;Encrypt=false
     volumes:
       - ./logs:/app/logs
     depends_on:
