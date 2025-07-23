@@ -5,6 +5,7 @@ WORKDIR /src
 # Copier uniquement les fichiers nécessaires pour la restauration
 COPY CESIZen.sln .
 COPY CESIZen/CESIZen.csproj CESIZen/
+COPY CESIZen.Tests/CESIZen.Tests.csproj CESIZen.Tests/
 
 # Restauration des dépendances
 RUN dotnet restore CESIZen.sln
