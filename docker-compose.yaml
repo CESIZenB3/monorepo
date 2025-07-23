@@ -10,9 +10,9 @@ services:
       - "5000:80"    # Accès HTTP via localhost:5000
       - "5001:443"   # (Facultatif) HTTPS
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - - ConnectionStrings__DefaultConnection=Server=sqlserver-db;Database=CESIZenDb;User Id=sa;Password=fabienL64;TrustServerCertificate=true;Encrypt=false
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: "Server=sqlserver-db;Database=CESIZenDb;User Id=sa;Password=fabienL64;TrustServerCertificate=true;Encrypt=false"
     volumes:
       - ./logs:/app/logs
     depends_on:
