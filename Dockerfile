@@ -6,6 +6,8 @@ WORKDIR /src
 COPY CESIZen.sln .
 COPY CESIZen/CESIZen.csproj CESIZen/
 COPY CESIZen.Tests/CESIZen.Tests.csproj CESIZen.Tests/
+COPY nuget.config /root/.nuget/NuGet/NuGet.Config
+
 
 # Restauration des dépendances
 RUN dotnet restore CESIZen.sln
